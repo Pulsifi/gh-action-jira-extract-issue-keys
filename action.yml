@@ -4,11 +4,11 @@ inputs:
   is-pull-request:
     description: 'if true, other input parameters will be ignored and keys from commits associated with pull request will be retrieved and parsed for Jira keys'
     required: false
-    default: false
+    default: 'false'
   parse-all-commits:
     description: 'All commits will be parsed. By default only the head commit is parsed when commit-message input value is not provided'
     required: false
-    default: false
+    default: 'false'
   commit-message:
     description: 'commit message to be parsed for jira keys. Note that if this input is not provided, the commits found in github.context.payload will be used'
     required: false
