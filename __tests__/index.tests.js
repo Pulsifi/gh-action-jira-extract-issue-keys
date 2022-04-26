@@ -1,9 +1,21 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
     return result;
 };
 var __importDefault = (this && this.__importDefault) || function (mod) {
@@ -16,13 +28,14 @@ const index_1 = __importDefault(require("../index"));
 const nock_1 = __importDefault(require("nock"));
 beforeEach(() => {
     jest.resetModules();
+    /** create github token and add her for real run */
     process.env['GITHUB_TOKEN'] = '';
     github.context.payload = {
         repository: {
             owner: {
-                login: 'testUser',
+                login: 'Pulsifi',
             },
-            name: 'testingRepoName',
+            name: 'github-template',
         },
         number: 1,
         commits: [],
@@ -44,7 +57,7 @@ describe('debug action debug messages', () => {
                 return 'false';
             return '';
         });
-        await expect(index_1.default()).resolves.not.toThrow();
+        await expect((0, index_1.default)()).resolves.not.toThrow();
     });
     it('isPullRequest is true', async () => {
         const tokenNumber = jest.spyOn(core, 'getInput').mockImplementation((name) => {
@@ -56,19 +69,18 @@ describe('debug action debug messages', () => {
                 return 'false';
             return '';
         });
-        await index_1.default();
+        await (0, index_1.default)();
         expect(tokenNumber.mock.results.length == 4);
         expect(tokenNumber.mock.results[0].value).toMatch('true');
         expect(tokenNumber.mock.results[1].value).toMatch('');
         expect(tokenNumber.mock.results[2].value).toMatch('false');
-        // expect(tokenNumber.mock.results[3].value).toMatch('false');
     });
     it('false isPullRequest, true commit', async () => {
         jest.spyOn(core, 'getInput').mockImplementation((name) => {
             if (name === 'is-pull-request')
                 return 'false';
             if (name === 'commit-message')
-                return 'the commit message';
+                return 'CHAR-123 the commit message';
             if (name === 'parse-all-commits')
                 return 'false';
             return '';
@@ -82,9 +94,7 @@ describe('debug action debug messages', () => {
                 return 'false';
             return '';
         });
-        const consoleLog = jest.spyOn(console, 'log');
-        await index_1.default();
-        expect(consoleLog.mock.results.length).toBe(0);
+        await (0, index_1.default)();
         expect(coreOutput.mock.results.length).toBe(1);
         expect(coreOutput.mock.results[0].value).toMatch('true');
     });
@@ -93,27 +103,25 @@ describe('debug action debug messages', () => {
             if (name === 'is-pull-request')
                 return 'false';
             if (name === 'commit-message')
-                return '';
+                return 'CHAR-123 test commit msg';
             if (name === 'parse-all-commits')
                 return 'true';
             return '';
         });
         const coreOutput = jest.spyOn(core, 'setOutput').mockImplementationOnce((name) => {
             if (name === 'jira-keys')
-                return 'blue';
+                return 'CHAR-1 blue';
             return '';
         }).mockImplementationOnce((name) => {
             if (name === 'jira-keys')
-                return 'red';
+                return 'CHAR-2 red';
             return '';
         }).mockImplementation((name) => {
             if (name === 'jira-keys')
-                return 'green';
+                return 'CHAR-3 green';
             return '';
         });
-        const consoleLog = jest.spyOn(console, 'log');
-        await (index_1.default());
-        expect(consoleLog.mock.results.length).toBe(0);
+        await ((0, index_1.default)());
         expect(coreOutput.mock.results.length).toBe(1);
         expect(coreOutput.mock.results[0].value).toMatch('blue');
     });
